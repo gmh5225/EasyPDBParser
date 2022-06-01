@@ -2,10 +2,13 @@
 [project]
 name = "EasyPDBParser"
 
+[subdir.raw_pdb]
+
 [target.EasyPDBParserLib]
 type = "library"
 headers = ["include/**.h"]
 sources = ["src/**.cpp", "src/**.h"]
 include-directories = ["include"]
+link-libraries = ["raw_pdb"]
 compile-features = ["cxx_std_20"]
 
