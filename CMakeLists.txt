@@ -45,6 +45,16 @@ set(EasyPDBParserLib_SOURCES "")
 
 list(APPEND EasyPDBParserLib_SOURCES
 	"src/EasyPDBParserLib.cpp"
+	"raw_pdb/src/Examples/ExampleContributions.cpp"
+	"raw_pdb/src/Examples/ExampleFunctionSymbols.cpp"
+	"raw_pdb/src/Examples/ExampleMain.cpp"
+	"raw_pdb/src/Examples/ExampleMemoryMappedFile.cpp"
+	"raw_pdb/src/Examples/ExampleSymbols.cpp"
+	"raw_pdb/src/Examples/ExampleTimedScope.cpp"
+	"raw_pdb/src/Examples/Examples_PCH.cpp"
+	"raw_pdb/src/Examples/ExampleMemoryMappedFile.h"
+	"raw_pdb/src/Examples/ExampleTimedScope.h"
+	"raw_pdb/src/Examples/Examples_PCH.h"
 	"include/EasyPDBParserLib.h"
 )
 
