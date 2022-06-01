@@ -1,8 +1,11 @@
 # Reference: https://build-cpp.github.io/cmkr/cmake-toml
 [project]
-name = "cmkr_for_beginners"
-description = "A minimal cmkr project."
+name = "EasyPDBParser"
 
-[target.hello_world]
-type = "executable"
-sources = ["src/main.cpp"]
+[target.EasyPDBParserLib]
+type = "library"
+headers = ["include/**.h"]
+sources = ["src/**.cpp", "src/**.h"]
+include-directories = ["include"]
+compile-features = ["cxx_std_20"]
+
