@@ -1,0 +1,8 @@
+# Reference: https://build-cpp.github.io/cmkr/cmake-toml
+[project]
+name = "cmkr_for_beginners"
+description = "A minimal cmkr project."
+
+[target.hello_world]
+type = "executable"
+sources = ["src/main.cpp"]
