@@ -7,7 +7,7 @@ namespace OldPDBMSDIAParser {
 // parse the module's symbols and then return the virtual address rva of a
 // function
 size_t get_address_rva_from_symbol(std::string function_name,
-                                   std::string pdb_full_path,
+                                   std::string pdb_path,
                                    /*OUT*/ size_t &sym_size);
 
 // clear stored info
