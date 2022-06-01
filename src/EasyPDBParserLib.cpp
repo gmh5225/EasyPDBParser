@@ -1,4 +1,5 @@
 #include "EasyPDBParserLib.h"
+#include "OldPDBMSDIAParser.h"
 #include <Examples/ExampleMemoryMappedFile.h>
 #include <PDB.h>
 #include <PDB_DBIStream.h>
@@ -290,52 +291,87 @@ void ParseFunctionSymbols(
 //////////////////////////////////////////////////////////////////////////////////
 /// class function
 
-PDBParser::PDBParser() { mSymbols.clear(); }
+PDBParser::PDBParser() {
+  mSymbols.clear();
+  mPDBFilePath = "";
+}
 
 const std::vector<Symbol> &PDBParser::GetSymbols() const { return mSymbols; }
 
 bool PDBParser::Parse(const char *PDBFilePath) {
-  MemoryMappedFile::Handle PDBFile = MemoryMappedFile::Open(PDBFilePath);
-  if (!PDBFile.baseAddress) {
-    printf("Unable to open pdb file %s\n", PDBFilePath);
-    return false;
-  }
 
-  if (IsError(PDB::ValidateFile(PDBFile.baseAddress))) {
-    printf("Unable to validate pdb file %s\n", PDBFilePath);
-    MemoryMappedFile::Close(PDBFile);
-    return false;
-  }
+  bool ParseOk = false;
 
-  const PDB::RawFile RawPdbFile = PDB::CreateRawFile(PDBFile.baseAddress);
-  if (IsError(PDB::HasValidDBIStream(RawPdbFile))) {
-    printf("Unable to validate DBI Stream\n");
-    MemoryMappedFile::Close(PDBFile);
-    return false;
-  }
+  do {
+    MemoryMappedFile::Handle PDBFile = MemoryMappedFile::Open(PDBFilePath);
+    if (!PDBFile.baseAddress) {
+      printf("Unable to open pdb file %s\n", PDBFilePath);
+      break;
+    }
 
-  const PDB::InfoStream infoStream(RawPdbFile);
-  if (infoStream.UsesDebugFastLink()) {
-    printf("PDB was linked using unsupported option /DEBUG:FASTLINK\n");
-    MemoryMappedFile::Close(PDBFile);
-    return false;
-  }
+    mPDBFilePath = PDBFilePath;
 
-  const PDB::DBIStream DbiStream = PDB::CreateDBIStream(RawPdbFile);
-  if (!HasValidDBIStreams(RawPdbFile, DbiStream)) {
-    printf("Unable to create DBI Stream\n");
-    MemoryMappedFile::Close(PDBFile);
-    return false;
-  }
+    if (IsError(PDB::ValidateFile(PDBFile.baseAddress))) {
+      printf("Unable to validate pdb file %s\n", PDBFilePath);
+      MemoryMappedFile::Close(PDBFile);
+      break;
+    }
 
-  ParseFunctionSymbols(RawPdbFile, DbiStream, mSymbols);
-  if (mSymbols.empty()) {
-    printf("Unable to parse function symbols\n");
-    return false;
-  }
+    const PDB::RawFile RawPdbFile = PDB::CreateRawFile(PDBFile.baseAddress);
+    if (IsError(PDB::HasValidDBIStream(RawPdbFile))) {
+      printf("Unable to validate DBI Stream\n");
+      MemoryMappedFile::Close(PDBFile);
+      break;
+    }
 
-  return true;
+    const PDB::InfoStream infoStream(RawPdbFile);
+    if (infoStream.UsesDebugFastLink()) {
+      printf("PDB was linked using unsupported option /DEBUG:FASTLINK\n");
+      MemoryMappedFile::Close(PDBFile);
+      break;
+    }
+
+    const PDB::DBIStream DbiStream = PDB::CreateDBIStream(RawPdbFile);
+    if (!HasValidDBIStreams(RawPdbFile, DbiStream)) {
+      printf("Unable to create DBI Stream\n");
+      MemoryMappedFile::Close(PDBFile);
+      break;
+    }
+
+    ParseFunctionSymbols(RawPdbFile, DbiStream, mSymbols);
+    if (mSymbols.empty()) {
+      printf("Unable to parse function symbols\n");
+      break;
+    }
+
+    ParseOk = true;
+  } while (0);
+
+  return ParseOk;
+}
+
+Symbol PDBParser::GetSymbolByOldMsdia(const std::string FuncName) {
+  Symbol Sym = {};
+
+#ifdef _WIN32
+  do {
+    if (FuncName.empty()) {
+      break;
+    }
+
+    size_t SymSize = 0;
+    auto Rva = OldPDBMSDIAParser::get_address_rva_from_symbol(
+        FuncName, mPDBFilePath, SymSize);
+    if (Rva) {
+      Sym.Rva = Rva;
+      Sym.Size = SymSize;
+      Sym.SymbolName = FuncName;
+    }
+
+  } while (0);
+#endif
+
+  return Sym;
 }
 
 } // namespace EasyPDBParserLib
-

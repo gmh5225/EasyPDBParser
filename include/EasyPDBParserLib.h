@@ -20,7 +20,11 @@ public:
   bool Parse(const char *PDBFilePath);
   const std::vector<Symbol> &GetSymbols() const;
 
+public:
+  Symbol GetSymbolByOldMsdia(const std::string FuncName);
+
 protected:
+  std::string mPDBFilePath;
   std::vector<Symbol> mSymbols;
 };
 

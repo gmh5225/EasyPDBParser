@@ -45,6 +45,9 @@ set(EasyPDBParserLib_SOURCES "")
 
 list(APPEND EasyPDBParserLib_SOURCES
 	"src/EasyPDBParserLib.cpp"
+	"src/OldPDBMSDIAParser.cpp"
+	"src/OldPDBMSDIAParser.h"
+	"src/dia2.h"
 	"raw_pdb/src/Examples/ExampleContributions.cpp"
 	"raw_pdb/src/Examples/ExampleFunctionSymbols.cpp"
 	"raw_pdb/src/Examples/ExampleMain.cpp"
